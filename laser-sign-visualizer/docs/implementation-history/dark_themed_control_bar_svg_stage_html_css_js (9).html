@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dark Control Bar</title>
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel-2:#111927;    
+      --accent:#22c55e;
+      --text:#e5e7eb;
+      --btn:#18202e;
+      --btn-hover:#1b2636;
+      --danger:#ef4444;
+      --ring: rgba(34,197,94,.5);
+      --shadow: 0 6px 14px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.04) inset;
+      --radius:16px;
+    }
+    html,body { height:100%; margin:0; background:var(--bg); color:var(--text); font-family: Inter, system-ui, sans-serif; display:flex; justify-content:center; align-items:center; }
+
+    .bar{
+      user-select:none;
+      background: var(--panel-2);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius: var(--radius);
+      padding:10px; box-shadow: var(--shadow);
+      display:grid;
+      grid-template-columns: 1fr 2fr 1fr;
+      gap:8px;
+      align-items:stretch;
+      overflow:hidden;
+      height:250px;
+    }
+
+    .stack, .stack-right{ display:grid; gap:8px; height:100%; grid-auto-rows:1fr; }
+    .stack button, .stack-right button{ flex:1; height:100%; }
+
+    .mid{
+      display:grid;
+      grid-template-rows: 2fr 1fr; /* cluster 2/3, readout 1/3 */
+      gap:6px;
+      height:100%;
+    }
+    .cluster{
+      display:grid;
+      grid-template-areas:
+        "up   up"
+        "left right"
+        "down down";
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr 1fr; /* thinner rows to create room */
+      row-gap:4px; column-gap:0;
+      height:100%;
+      align-items:stretch; justify-items:stretch;
+    }
+    .cluster .btn{ width:100%; height:100%; font-size:16px; padding:4px; }
+    .cluster .up { grid-area: up; }
+    .cluster .left { grid-area: left; }
+    .cluster .down { grid-area: down; }
+    .cluster .right { grid-area: right; }
+    .cluster .btn{ width:100%; height:100%; font-size:15px; padding:4px; }
+
+    .readout{ display:flex; align-items:center; height:100%; }
+    .display{ width:100%; padding:8px; border-radius:12px; background:#0e1522; border:1px solid rgba(255,255,255,.07); box-shadow: 0 0 0 1px rgba(34,197,94,.25) inset, 0 10px 22px rgba(0,0,0,.4); color:var(--text); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace; font-size:13px; height:100%; }
+
+    .btn{
+      appearance:none; border:none; cursor:pointer; color:var(--text);
+      background:linear-gradient(180deg, var(--btn), #121a27);
+      border-radius:12px; font-weight:600;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.05) inset, 0 6px 14px rgba(0,0,0,.45);
+      transition: transform .06s ease, box-shadow .2s ease, background .2s ease;
+      font-size:18px;
+    }
+    .btn:hover{ background:linear-gradient(180deg, var(--btn-hover), #0f1724); box-shadow: 0 0 0 1px var(--ring) inset, 0 8px 18px rgba(0,0,0,.55); }
+    .btn:active{ transform: translateY(1px) scale(.98); }
+    .btn--danger{ background: linear-gradient(180deg, #2a0e10, #1a0b0c); color:#fecaca; }
+    .btn--accent{ box-shadow: 0 0 0 1px var(--ring) inset, 0 6px 14px rgba(34,197,94,.15); }
+
+    @media (max-width: 480px) {
+      .bar{ height:200px; gap:6px; padding:8px; }
+      .btn{ font-size:16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bar" role="region" aria-label="SVG Controls">
+    <div class="stack">
+      <button class="btn btn--accent" id="btn1">◀⟳</button>
+      <button class="btn btn--accent" id="btn2">＋</button>
+      <button class="btn btn--danger" id="btn3">␡</button>
+    </div>
+
+    <div class="mid">
+      <div class="cluster">
+        <button class="btn up" id="btn7">▲</button>
+        <button class="btn left" id="btn8">◀</button>
+        <button class="btn right" id="btn9">▶</button>
+        <button class="btn down" id="btn10">▼</button>
+      </div>
+      <div class="readout">
+        <input id="readout" class="display" type="text" readonly value="Original: — | Current: — | Pos: —" />
+      </div>
+    </div>
+
+    <div class="stack-right">
+      <button class="btn btn--accent" id="btn4">⟳▶</button>
+      <button class="btn btn--accent" id="btn5">−</button>
+      <button class="btn" id="btn6">＋SVG</button>
+    </div>
+  </div>
+</body>
+</html>

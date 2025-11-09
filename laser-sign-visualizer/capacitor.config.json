@@ -1,0 +1,5 @@
+{
+  "appId": "com.yourname.lasersigns",
+  "appName": "Laser Sign Visualizer",
+  "webDir": "dist"
+}

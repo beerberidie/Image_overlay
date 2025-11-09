@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laser Sign Visualizer - Performance Test Runner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #10b981, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card h2 {
+            margin-bottom: 16px;
+            color: #10b981;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: #374151;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #9ca3af;
+        }
+
+        .btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-right: 12px;
+            margin-bottom: 12px;
+        }
+
+        .btn:hover {
+            background: #059669;
+        }
+
+        .btn:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #3b82f6;
+        }
+
+        .btn-secondary:hover {
+            background: #2563eb;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #374151;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 16px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #10b981;
+            transition: width 0.3s ease;
+        }
+
+        .log-container {
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 4px 0;
+        }
+
+        .log-timestamp {
+            color: #6b7280;
+            margin-right: 8px;
+        }
+
+        .log-level-info {
+            color: #3b82f6;
+        }
+
+        .log-level-success {
+            color: #10b981;
+        }
+
+        .log-level-warning {
+            color: #f59e0b;
+        }
+
+        .log-level-error {
+            color: #ef4444;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .results-section {
+            margin-top: 24px;
+        }
+
+        .issue-card {
+            background: #374151;
+            border-left: 4px solid #ef4444;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .issue-high {
+            border-left-color: #ef4444;
+        }
+
+        .issue-medium {
+            border-left-color: #f59e0b;
+        }
+
+        .issue-low {
+            border-left-color: #6b7280;
+        }
+
+        .recommendation-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Performance Test Runner</h1>
+            <p>Comprehensive performance analysis for Laser Sign Visualizer on Samsung Galaxy S20+</p>
+        </div>
+
+        <!-- Current Performance Stats -->
+        <div class="card">
+            <h2>📈 Current Performance</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="memory-usage">--</div>
+                    <div class="stat-label">Memory Usage (MB)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="frame-rate">--</div>
+                    <div class="stat-label">Frame Rate (FPS)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="test-status">Ready</div>
+                    <div class="stat-label">Test Status</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Controls -->
+        <div class="card">
+            <h2>🚀 Test Controls</h2>
+            <button class="btn" id="run-tests-btn" onclick="runPerformanceTests()">
+                Run Full Performance Suite
+            </button>
+            <button class="btn btn-secondary" id="quick-test-btn" onclick="runQuickTest()">
+                Quick Performance Check
+            </button>
+            <button class="btn btn-secondary" onclick="exportResults('json')">
+                Export JSON
+            </button>
+            <button class="btn btn-secondary" onclick="exportResults('csv')">
+                Export CSV
+            </button>
+            <button class="btn btn-danger" onclick="clearResults()">
+                Clear Results
+            </button>
+
+            <div id="progress-container" class="hidden">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div id="current-test">Initializing...</div>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="card" id="results-section" style="display: none;">
+            <h2>📊 Test Results</h2>
+            <div class="stats-grid" id="results-stats">
+                <!-- Results will be populated here -->
+            </div>
+        </div>
+
+        <!-- Issues Section -->
+        <div class="card" id="issues-section" style="display: none;">
+            <h2>🚨 Critical Issues</h2>
+            <div id="issues-container">
+                <!-- Issues will be populated here -->
+            </div>
+        </div>
+
+        <!-- Recommendations Section -->
+        <div class="card" id="recommendations-section" style="display: none;">
+            <h2>💡 Optimization Recommendations</h2>
+            <div id="recommendations-container">
+                <!-- Recommendations will be populated here -->
+            </div>
+        </div>
+
+        <!-- Test Log -->
+        <div class="card">
+            <h2>📝 Test Log</h2>
+            <div class="log-container" id="test-log">
+                <div class="log-entry">
+                    <span class="log-timestamp">[Ready]</span>
+                    <span class="log-level-info">Performance test runner initialized</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load test scripts -->
+    <script src="PerformanceTestSuite.js"></script>
+    <script src="TestRunner.js"></script>
+
+    <script>
+        let testRunner = null;
+        let currentResults = null;
+        let performanceMonitor = null;
+
+        // Initialize test runner
+        async function initializeTestRunner() {
+            try {
+                testRunner = new PerformanceTestSuite();
+                logMessage('Test runner initialized successfully', 'success');
+                
+                // Start performance monitoring
+                startPerformanceMonitoring();
+            } catch (error) {
+                logMessage(`Failed to initialize test runner: ${error.message}`, 'error');
+            }
+        }
+
+        // Start performance monitoring
+        function startPerformanceMonitoring() {
+            performanceMonitor = setInterval(() => {
+                updatePerformanceStats();
+            }, 2000);
+        }
+
+        // Update performance statistics
+        function updatePerformanceStats() {
+            if (testRunner) {
+                const memory = testRunner.getCurrentMemoryUsage();
+                document.getElementById('memory-usage').textContent = (memory / 1024 / 1024).toFixed(1);
+                
+                // Update frame rate if available
+                if (testRunner.performanceMetrics.frameRate && testRunner.performanceMetrics.frameRate.length > 0) {
+                    const latestFPS = testRunner.performanceMetrics.frameRate.slice(-1)[0].fps;
+                    document.getElementById('frame-rate').textContent = latestFPS.toFixed(1);
+                }
+            }
+        }
+
+        // Run full performance test suite
+        async function runPerformanceTests() {
+            if (!testRunner) {
+                logMessage('Test runner not initialized', 'error');
+                return;
+            }
+
+            const runBtn = document.getElementById('run-tests-btn');
+            const quickBtn = document.getElementById('quick-test-btn');
+            const progressContainer = document.getElementById('progress-container');
+            
+            runBtn.disabled = true;
+            quickBtn.disabled = true;
+            progressContainer.classList.remove('hidden');
+            
+            document.getElementById('test-status').textContent = 'Running';
+            logMessage('Starting comprehensive performance test suite...', 'info');
+
+            try {
+                // Simulate progress updates
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress = Math.min(progress + 2, 95);
+                    updateProgress(progress, 'Running tests...');
+                }, 1000);
+
+                const results = await testRunner.runFullTestSuite();
+                
+                clearInterval(progressInterval);
+                updateProgress(100, 'Complete');
+                
+                currentResults = results;
+                displayResults(results);
+                
+                logMessage('Performance test suite completed successfully', 'success');
+                document.getElementById('test-status').textContent = 'Complete';
+                
+            } catch (error) {
+                logMessage(`Performance test failed: ${error.message}`, 'error');
+                document.getElementById('test-status').textContent = 'Failed';
+            } finally {
+                runBtn.disabled = false;
+                quickBtn.disabled = false;
+                setTimeout(() => {
+                    progressContainer.classList.add('hidden');
+                }, 2000);
+            }
+        }
+
+        // Run quick performance check
+        async function runQuickTest() {
+            if (!testRunner) {
+                logMessage('Test runner not initialized', 'error');
+                return;
+            }
+
+            logMessage('Running quick performance check...', 'info');
+            
+            try {
+                // Run a subset of tests
+                const quickResults = {
+                    memory: testRunner.getCurrentMemoryUsage(),
+                    timestamp: Date.now(),
+                    frameRate: testRunner.performanceMetrics.frameRate ? 
+                        testRunner.performanceMetrics.frameRate.slice(-1)[0]?.fps : 0
+                };
+                
+                logMessage(`Quick check complete - Memory: ${(quickResults.memory / 1024 / 1024).toFixed(1)}MB, FPS: ${quickResults.frameRate || 'N/A'}`, 'success');
+            } catch (error) {
+                logMessage(`Quick test failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Update progress bar
+        function updateProgress(percent, message) {
+            document.getElementById('progress-fill').style.width = `${percent}%`;
+            document.getElementById('current-test').textContent = message;
+        }
+
+        // Display test results
+        function displayResults(results) {
+            const resultsSection = document.getElementById('results-section');
+            const resultsStats = document.getElementById('results-stats');
+            
+            resultsStats.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value" style="color: ${results.summary.performanceScore >= 70 ? '#10b981' : results.summary.performanceScore >= 50 ? '#f59e0b' : '#ef4444'}">
+                        ${results.summary.performanceScore}/100
+                    </div>
+                    <div class="stat-label">Performance Score</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" style="color: ${results.summary.passedTests === results.summary.totalTests ? '#10b981' : '#ef4444'}">
+                        ${results.summary.passedTests}/${results.summary.totalTests}
+                    </div>
+                    <div class="stat-label">Tests Passed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" style="color: ${results.summary.criticalIssues === 0 ? '#10b981' : '#ef4444'}">
+                        ${results.summary.criticalIssues}
+                    </div>
+                    <div class="stat-label">Critical Issues</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${(results.testDuration / 1000).toFixed(1)}s</div>
+                    <div class="stat-label">Test Duration</div>
+                </div>
+            `;
+            
+            resultsSection.style.display = 'block';
+            
+            // Display issues if any
+            displayIssues(results);
+            
+            // Display recommendations
+            displayRecommendations(results);
+        }
+
+        // Display critical issues
+        function displayIssues(results) {
+            const issues = testRunner.identifyCriticalIssues();
+            const issuesSection = document.getElementById('issues-section');
+            const issuesContainer = document.getElementById('issues-container');
+            
+            if (issues.length > 0) {
+                issuesContainer.innerHTML = issues.map(issue => `
+                    <div class="issue-card issue-${issue.severity.toLowerCase()}">
+                        <div style="font-weight: bold; margin-bottom: 8px;">
+                            [${issue.severity}] ${issue.type.replace(/_/g, ' ')}
+                        </div>
+                        <div style="margin-bottom: 8px;">${issue.description}</div>
+                        <div style="font-size: 0.875rem; color: #9ca3af;">
+                            💡 ${issue.recommendation}
+                        </div>
+                    </div>
+                `).join('');
+                
+                issuesSection.style.display = 'block';
+            }
+        }
+
+        // Display recommendations
+        function displayRecommendations(results) {
+            const recommendationsSection = document.getElementById('recommendations-section');
+            const recommendationsContainer = document.getElementById('recommendations-container');
+            
+            if (results.recommendations && results.recommendations.length > 0) {
+                recommendationsContainer.innerHTML = results.recommendations.slice(0, 5).map(rec => `
+                    <div class="recommendation-card">
+                        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                            <span style="background: ${rec.priority === 'HIGH' ? '#ef4444' : rec.priority === 'MEDIUM' ? '#f59e0b' : '#6b7280'}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; margin-right: 12px;">
+                                ${rec.priority}
+                            </span>
+                            <span style="font-weight: bold;">${rec.description}</span>
+                        </div>
+                        <div style="font-size: 0.875rem; color: #9ca3af;">
+                            Code areas: ${rec.codeAreas.join(', ')}
+                        </div>
+                    </div>
+                `).join('');
+                
+                recommendationsSection.style.display = 'block';
+            }
+        }
+
+        // Export results
+        function exportResults(format) {
+            if (!currentResults) {
+                logMessage('No results to export', 'warning');
+                return;
+            }
+
+            const data = testRunner.exportResults(format);
+            const blob = new Blob([data], { type: format === 'json' ? 'application/json' : 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `laser-sign-visualizer-performance-${Date.now()}.${format}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            logMessage(`Results exported as ${format.toUpperCase()}`, 'success');
+        }
+
+        // Clear results
+        function clearResults() {
+            currentResults = null;
+            document.getElementById('results-section').style.display = 'none';
+            document.getElementById('issues-section').style.display = 'none';
+            document.getElementById('recommendations-section').style.display = 'none';
+            document.getElementById('test-status').textContent = 'Ready';
+            logMessage('Results cleared', 'info');
+        }
+
+        // Log message to test log
+        function logMessage(message, level = 'info') {
+            const logContainer = document.getElementById('test-log');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `
+                <span class="log-timestamp">[${timestamp}]</span>
+                <span class="log-level-${level}">${message}</span>
+            `;
+            
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', () => {
+            initializeTestRunner();
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (performanceMonitor) {
+                clearInterval(performanceMonitor);
+            }
+        });
+    </script>
+</body>
+</html>
